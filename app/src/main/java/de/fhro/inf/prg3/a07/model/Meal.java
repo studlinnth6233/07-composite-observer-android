@@ -2,7 +2,6 @@ package de.fhro.inf.prg3.a07.model;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -81,11 +80,15 @@ public class Meal {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .append("id", id)
-                .append("name", name)
-                .append("category", category)
-                .append("notes", notes)
-                .toString();
+        StringBuilder notesBuilder = new StringBuilder();
+        for(String s : notes){
+            notesBuilder.append(String.format("%s, ", s));
+        }
+        if(notesBuilder.length() > 0) {
+            notesBuilder.setLength(notesBuilder.length() - 2);
+        }else {
+            notesBuilder.append("No notes");
+        }
+        return String.format("%s\n%s\n%s", name, category, notesBuilder.toString());
     }
 }

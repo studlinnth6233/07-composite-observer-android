@@ -81,7 +81,7 @@ To be able to display the retrieved meals we need to put them into the `ListView
 To get a reference to the `ListView` use the Android specific mechanism like this:
 
 ```java
-Listview mealsListView = findViewById(R.id.myListView);
+ListView mealsListView = findViewById(R.id.myListView);
 ```
 
 The Android `ListView` class requires an adapter to interact with your list of meals.
@@ -104,3 +104,16 @@ To register an OnClickListener use the method `setOnClickListener` and hand the 
 _Remark: Unlike in the last exercise and in the test case you're not allowed to use the `execute` method of Retrofit because Android does not allow network communication in the main thread. You have to use the `enqueue` method of Retrofit and pass a callback handler. This callback handler has to put the retrieved meals into your `ArrayAdapter<>`_
 
 **Your app should now be able to display what you can eat after this assignment or what you might have eaten before this assignment!**
+
+### Filter the meals
+
+The last part is to implement the filter for vegetarian meals only.
+Unfortunately does the API not expose any marker if a meal is vegetarian or not so we have to think about how to filter the list of meals otherwise.
+On possible solution is to filter all notes of a meal for the word **fleisch** and exclude it if so.
+
+_Hint: You might remember regular expressions from the last semester to check if a string matches a specific pattern._
+
+* Add the checkbox shown in the wireframe to your `activity_main.xml` if you haven't already. Remember that you have to set an id if you want to interact with an element.
+* Create a reference to your _vegetarian checkbox_
+* Implement a `static` helper method which filters for vegetarian meals
+* Change your `Callback` of the Retrofit call to filter for vegetarian meals if the checkbox is checked
