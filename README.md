@@ -23,7 +23,7 @@ For this reason we implement a small Android app which displays the meals served
 3. Import the project to your Android Studio
 4. Check the [Android Studio guide](./AndroidStudio-Guide.md) to create a virtual device and deploy the empty app for the first time
 
-## Layout
+## Layout (Composite pattern)
 
 At first we have to create the layout of the app.
 The following wireframe shows how the app should look like when we are finished.
@@ -67,9 +67,40 @@ The [OpenMensa API](http://doc.openmensa.org/api/v2/) is an API to retrieve the 
 As last week we want to use [Retrofit](http://square.github.io/retrofit/) to interact with the API (don't worry you won't have to implement any TypeAdapters or anything else, it's straight forward this time).
 
 * Add the method `getMeals` to the interface `OpenMensaAPI` (as shown in the following UML)
+* Complete the test in the class `OpenMensaAPITests` to ensure that your implementation is working correctly
 
 ![API spec](./assets/images/APISpec.svg)
 
 _Hint: as shown last week parameters of methods have to be mapped to parameters in the annotation. The inline comment in the interface shows the query string we want to produce. You'll get it where the date has to be inserted._
 
 _Remark: the model you'll need is given._
+
+### Displaying the meals (MVC and observer)
+
+To be able to display the retrieved meals we need to put them into the `ListView` we created earlier.
+To get a reference to the `ListView` use the Android specific mechanism like this:
+
+```java
+Listview mealsListView = findViewById(R.id.myListView);
+```
+
+The Android `ListView` class requires an adapter to interact with your list of meals.
+The easiest way to get such an adapter is to use the Android built-in `ArrayAdapter<T>`.
+
+* Create a reference to your `ListView`
+* Create an `ArrayAdapter<>`
+* Set the adapter of your `ListView` to your newly created `ArrayAdapter<>`
+
+The next thing we have to implement is the _OnClickListener_ of the refresh button.
+An OnClickListeners is a small classes which contains just one method which is called whenever a certain event occurs (in our case if the button is clicked).
+
+To register an OnClickListener use the method `setOnClickListener` and hand the method an anonymous class over which implements the interface `View.OnClickListener`.
+
+* Create a reference to your refresh-`Button`
+* Register an OnClickListener
+* Implement the OnClickListener as anonymous inner class
+* Implement the logic to retrieve the meals of the current day in the `onClick` method of your OnClickListener
+
+_Remark: Unlike in the last exercise and in the test case you're not allowed to use the `execute` method of Retrofit because Android does not allow network communication in the main thread. You have to use the `enqueue` method of Retrofit and pass a callback handler. This callback handler has to put the retrieved meals into your `ArrayAdapter<>`_
+
+**Your app should now be able to display what you can eat after this assignment or what you might have eaten before this assignment!**
