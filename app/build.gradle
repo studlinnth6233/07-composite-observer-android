@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: "de.mannodermaus.android-junit5"
 
 android {
     compileSdkVersion 26
@@ -16,6 +17,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+    }
 }
 
 dependencies {
@@ -29,7 +34,13 @@ dependencies {
     /* Joda time for android for date handling */
     compile "net.danlew:android.joda:${joda_time_version}"
 
-    testImplementation 'junit:junit:4.12'
+    compile("com.squareup.retrofit2:retrofit:${retrofit2_version}")
+    compile("com.squareup.retrofit2:converter-gson:${retrofit2_version}")
+
+    /* JUnit 5 */
+    testImplementation junit5()
+    testCompileOnly junit5EmbeddedRuntime()
+
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 }

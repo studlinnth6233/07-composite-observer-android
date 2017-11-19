@@ -2,6 +2,7 @@ package de.fhro.inf.prg3.a07.model;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -76,5 +77,15 @@ public class Meal {
                 .append(getCategory())
                 .append(getNotes())
                 .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("id", id)
+                .append("name", name)
+                .append("category", category)
+                .append("notes", notes)
+                .toString();
     }
 }
