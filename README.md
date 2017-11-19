@@ -1,119 +1,229 @@
 _This is an assignment to the class [Programmieren 3](https://hsro-inf-prg3.github.io) at the [University of Applied Sciences Rosenheim](http://www.fh-rosenheim.de)._
 
-# Assignment 7: Composite, Iterator, Observer and MVC
+
+# Assignment 7: Composite and Observer
 
 First of all:
 
 ![Don't panic](./assets/images/dontpanic.jpg)
 
-This assignment covers the first four design patterns we want to have a look at:
+In this assignment, we will use the [_composite_](https://en.wikipedia.org/wiki/Composite_pattern) and a variant of the [_observer_](https://en.wikipedia.org/wiki/Observer_pattern) patterns.
 
-* Composite
-* Observer
-* MVC
-* Iterator
-
-The first three of them are often used when you implement graphical interfaces.
-For this reason we implement a small Android app which displays the meals served at the contina at the current day.
 
 ## Setup
 
+0. Install [Android Studio](https://developer.android.com/studio/index.html).
 1. Create a fork of this repository (button in the right upper corner)
 2. Clone the project (get the link by clicking the green _Clone or download button_)
-3. Import the project to your Android Studio
-4. Check the [Android Studio guide](./AndroidStudio-Guide.md) to create a virtual device and deploy the empty app for the first time
+3. Import the project to your Android Studio; it behaves almost the same as IntelliJ.
+4. Check the [Android Studio guide](./AndroidStudio-Guide.md) to create a virtual device and run the empty app for the first time.
 
-## Layout (Composite pattern)
+> Note: It is absolutely essential that you do these steps at home -- you will have to download a ton to get started.
 
-At first we have to create the layout of the app.
+
+## Composite Pattern
+
+Although we will not directly implement the pattern, it is the cornerstone of the Android user interface library.
+The base class of anything that you see in the app is (at some point) `android.view.View` ([documentation](https://developer.android.com/reference/android/view/View.html)).
+A view can either be a "primitive" such as a `Button` or a `TextView`, or a container class that contains other views, such as a `ListView` or a `ConstraintLayout`.
+In user interface language, these views are also called _widgets_, and Android provides a large collection of standard widgets such as buttons, selectors, text inputs, etc.
+When you design an activity (a certain "view" of the app), you will make a hierarchical composition of such widgets.
+
+> Note: It is also possible to design your own widgets, but that is a topic for another day.
+
 The following wireframe shows how the app should look like when we are finished.
 
 ![Wireframe](./assets/images/wireframe.svg)
 
-Layouts in Android are created by writing XML code.
-The layouts are located in the path `app/res/layout`.
-The layout `activity_main.xml` is already there but nearly empty beside the default code.
+As you can see, it is a rather simple layout; it is a hierarchical composition of a main app view, button, checkbox and a list view, which contains the individual dishes.
 
+```
+- main app view
+  + button "Refresh"
+  + checkbox "vegetarian only"
+  + list view
+    * dish 1: "Rinderroulade ..."
+    * dish 2: "Hühnchenfilet ..."
+    * ...
+```
+
+In Android, layouts are created by writing this schema in a specific XML dialect.
+These _layout files_ are stored in `app/res/layout`, e.g. `activity_main.xml`.
+When you run the app, it will start the main activity, in our example `MainActivity`.
+Usually, the `onCreate` method is overwritten:
+
+```java
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+
+    // this will inflate the layout from res/layout/activity_main.xml
+    setContentView(R.layout.activity_main);
+
+    // add your code here
+}
+```
+
+Where the static variable `R.layout.activity_main` refers to the file `app/layout/activity_main.xml`, and the `setContentView` will inflate the layout based on the content of this file.
+
+So how are the components layed out on the screen?
 If you look at the [Android docs](https://developer.android.com/index.html) for design recommondations you'll notice that the `ConstraintLayout` is currently the preferred way to layout Android apps.
-For now it may be easier to choose another layout, e.g.:
+So in the example above, `main app view` is actually a _layout_ container, and in our case, we wil use `ConstraintLayout` (which should be the default).
 
-* LinearLayout
-* GridLayout
 
-### Basic layout
+### Basic Layout
 
-* Add a Button to your `activity_main.xml`
-* Add a ListView to your `activity_main.xml`
+Open the `activity_main.xml`; note that you can use the _design mode_ (WYSIWYG) or _text_ mode, to write the XML code manually.
 
-Each element you want to interact with has to have an id.
+Using the editor, add a `Button`, `CheckBox` and `ListView` to your `ConstraintLayout`.
 
+Make sure that each element has an id associated with it.
+You will find it on the very top in the attributes bar on the left (WYSIWIG), or by setting the `android:id="@+id/<some_id>"` attribute; note the `+`, it signals that you _define_ the id, rather than referencing it.
+
+Now we need to define the geographical relation of the components.
+Change to the text mode of the editor, and add the appropriate attributes to the elements.
+For example:
+
+```
+app:layout_constraintStart_toStartOf="..."  // start is the "left" side of the component
+app:layout_constraintEnd_toEndOf="..."      // end is the "right" side
+app:layout_constraintTop_toTopOf="..."
+app:layout_constraintTop_toBottomOf="..."
+```
+
+Instead of the `...`, write identifiers of other elements, e.g. `parent` for the enclosing container, or `@id/<some_id>` (note the absence of `+`, since we're referencing).
 * As we want to interact with both of them afterwards set ids. (Think of a naming convention you'll remember later when you need the ids.)
 
-_Hint: the designer helps you to find all necessary widgets but depending on your chosen layout you might have to edit the generated code per hand afterwards._
+For example, the `CheckBox` ([see documentation](https://developer.android.com/reference/android/widget/CheckBox.html)) could be defined as
 
-_Hint 2: the container `ListView` is already scrollable so you don't have to care about this yourself_
+```xml
+<CheckBox
+    android:id="@+id/checkBox1"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:text="Only vegie"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/button1" />
+```
 
-### `ListView` element layout
+On the "Java side" of the app, you can use the `findViewById()` method to get a handle on a widget, for example
 
-The `ListView` needs a layout which it will use to display the elements in our list.
+```java
+CheckBox cb = (CheckBox) findViewById(R.id.checkBox1);
+```
 
-* Create a new **Layout resource file** in the `layout` folder, name it `meal_entry.xml` and set the `Root element` to `TextView`
 
-## Application Logic
+### `ListView` Elements
+
+A `ListView` needs a layout to be used to display the elements in the list.
+In our case, we want to display a simple line of text.
+Create a new **Layout resource file** in the `layout` folder, name it `meal_entry.xml` and set the `Root element` to `TextView`.
+
+The key to populating a list view is the `BaseAdapter` provides the _data_ for a list view.
+In our case, we will use an `ArrayAdapter`, that allows us to render the content of an array.
+[According to the documentation](https://developer.android.com/reference/android/widget/ArrayAdapter.html), it uses the `toString()` method of each object in the array and place it into a `TextView`.
+Once you hand this adapter to the list view, it will update its display.
+
+```java
+ListView lv = (ListView) findViewById(R.id.listView1);
+
+lv.setAdapter(new ArrayAdapter<>(
+	MainActivity.this,     // context we're in; typically the activity
+	R.layout.meal_entry,   // where to find the layout for each item
+	new String[] {"Hello", "world"} // your data
+));
+```
+
+Go ahead and try displaying a few `String` items in your app.
+
+
+## Observer Pattern
+
+The activity (app) is pretty static for now since it does not allow for any user interaction.
+Android (and in fact: most GUI libraries) use a variant of the _observer pattern_ to model user input such as clicks (taps), key presses, etc.
+
+The idea is to provide a _callback_ to a widget that has the desired action.
+Depending on the version of Java you use, you can set it either using a _lambda_ expression, or by using an instance of the `View.OnClickListener` instance.
+
+```java
+Button btn = (Button) findViewById(R.id.button1);
+btn.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onClick(View view) {
+   		// do crazy stuff when you click the button :-)     
+    }
+});
+```
+
+Go ahead and add an `OnClickListener` to your `Button` that causes the list to display the string `"Hans"` and `"Dampf"`.
+
+
+### Tips and Good Practice
+
+As you can see, programming user interfaces can quickly become quite a mess.
+It is good practice to make your code modular and reusable.
+Here are a few tips:
+
+- Cache references to widgets by storing the result of `findViewById` in a local variable or an attribute; obtain the references after inflating the layout in the `onCreate()` method.
+- Use anonymous inner classes (or lambda expressions) only for very short methods; move longer logic to separate methods or even classes.
+- For heavy lifting such as file IO, sorting, network etc. use threads (more later).
+- Use an advanced toolkit such as [Butterknife](jakewharton.github.io/butterknife/) to reduce the amount of boilerplate code to write.
+
+
+## Business Logic
+
+With all of the user interface and interactions in place (at least in principle), we're ready to add actual logic (and data) to our app.
+
 
 ### OpenMensaAPI
 
 The [OpenMensa API](http://doc.openmensa.org/api/v2/) is an API to retrieve the menu of a certain day of a certain canteen.
-As last week we want to use [Retrofit](http://square.github.io/retrofit/) to interact with the API (don't worry you won't have to implement any TypeAdapters or anything else, it's straight forward this time).
+In the previous assignment, we used [Retrofit](http://square.github.io/retrofit/) to interact with the API.
+This time, we will use it again -- but don't worry you won't have to implement any TypeAdapters or anything else, it's straight forward this time.
 
-* Add the method `getMeals` to the interface `OpenMensaAPI` (as shown in the following UML)
-* Complete the test in the class `OpenMensaAPITests` to ensure that your implementation is working correctly
+* Add the method `getMeals` to the interface `OpenMensaAPI` (as shown in the following UML).
+	Make sure to use the correct annotations to make the proper call.
+* Complete the test in the class `OpenMensaAPITests` to ensure that your implementation is working correctly.
 
 ![API spec](./assets/images/APISpec.svg)
 
-_Hint: as shown last week parameters of methods have to be mapped to parameters in the annotation. The inline comment in the interface shows the query string we want to produce. You'll get it where the date has to be inserted._
+**Hints:** 
+- As shown last week, parameters of methods have to be mapped to parameters in the annotation.
+	The inline comment in the interface shows the actual query we want to produce, which requires canteen id and date (Rosenheim is 229).
+- The `Meal` class is provided.
+- Check out the `setup()` provided in `OpenMensaAPITests`: it adds an interceptor to Retrofit that will print out every request (and response) on the logcat.
 
-_Remark: the model you'll need is given._
 
-### Displaying the meals (MVC and observer)
+### Putting the Pieces Together
 
-To be able to display the retrieved meals we need to put them into the `ListView` we created earlier.
-To get a reference to the `ListView` use the Android specific mechanism like this:
+Change your code so that once you click the button, it retrieves today's menu, and renders the dishes' names on the list view.
 
+**Hints:**
+- You can get today's date from the `Calendar` API using the `SimpleDateFormat` helper class:
+	
 ```java
-ListView mealsListView = findViewById(R.id.myListView);
+SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+String today = sdf.format(new Date());
 ```
-
-The Android `ListView` class requires an adapter to interact with your list of meals.
-The easiest way to get such an adapter is to use the Android built-in `ArrayAdapter<T>`.
-
-* Create a reference to your `ListView`
-* Create an `ArrayAdapter<>`
-* Set the adapter of your `ListView` to your newly created `ArrayAdapter<>`
-
-The next thing we have to implement is the _OnClickListener_ of the refresh button.
-An OnClickListeners is a small classes which contains just one method which is called whenever a certain event occurs (in our case if the button is clicked).
-
-To register an OnClickListener use the method `setOnClickListener` and hand the method an anonymous class over which implements the interface `View.OnClickListener`.
-
-* Create a reference to your refresh-`Button`
-* Register an OnClickListener
-* Implement the OnClickListener as anonymous inner class
-* Implement the logic to retrieve the meals of the current day in the `onClick` method of your OnClickListener
-
-_Remark: Unlike in the last exercise and in the test case you're not allowed to use the `execute` method of Retrofit because Android does not allow network communication in the main thread. You have to use the `enqueue` method of Retrofit and pass a callback handler. This callback handler has to put the retrieved meals into your `ArrayAdapter<>`_
+	
+- You will need to map the list of `Meal`s to a list of `String`s.
+- Android forbids running network code on the UI thread; use the `Call.enqueue()` instead of the `Call.execute()` method, and pass it a `Callback<>` handler.
+- In the network callback, make sure to check if the response was successful, by checking `response.isSuccesful()` (which returns true for `2XX` codes).
 
 **Your app should now be able to display what you can eat after this assignment or what you might have eaten before this assignment!**
 
-### Filter the meals
+
+### Filter the Meals
 
 The last part is to implement the filter for vegetarian meals only.
-Unfortunately does the API not expose any marker if a meal is vegetarian or not so we have to think about how to filter the list of meals otherwise.
-On possible solution is to filter all notes of a meal for the word **fleisch** and exclude it if so.
+Unfortunately, the API does not expose any marker so we will use a simple workaround:
+a meal is vegetarian if none of the notes contains the string `"fleisch"`.
 
-_Hint: You might remember regular expressions from the last semester to check if a string matches a specific pattern._
+> Note: The solution is **really** simple, no regular expressions or alike needed.
 
-* Add the checkbox shown in the wireframe to your `activity_main.xml` if you haven't already. Remember that you have to set an id if you want to interact with an element.
-* Create a reference to your _vegetarian checkbox_
-* Implement a `static` helper method which filters for vegetarian meals
-* Change your `Callback` of the Retrofit call to filter for vegetarian meals if the checkbox is checked
+- Add a `isVegetarian()` method to the `Meal` class using the above workaround.
+- Change your code so that it filters the results if the checkbox is checked.
+
+> Note: Kudos if you can also trigger a refresh if the checkbox selection changes.

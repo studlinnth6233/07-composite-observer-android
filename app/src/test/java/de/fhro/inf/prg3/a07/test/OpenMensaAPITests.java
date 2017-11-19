@@ -9,6 +9,8 @@ import java.util.logging.Logger;
 
 import de.fhro.inf.prg3.a07.api.OpenMensaAPI;
 import de.fhro.inf.prg3.a07.model.Meal;
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -26,9 +28,18 @@ public class OpenMensaAPITests {
 
     @BeforeEach
     public void setup() {
+        // use this to intercept all requests and output them to the logging facilities
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(interceptor)
+                .build();
+
         Retrofit retrofit = new Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create())
                 .baseUrl("http://openmensa.org/api/v2/")
+                .client(client)
                 .build();
 
         openMensaAPI = retrofit.create(OpenMensaAPI.class);
@@ -36,11 +47,11 @@ public class OpenMensaAPITests {
 
     @Test
     public void testGetMeals() throws IOException {
-        //TODO prepare call
+        // TODO prepare call
 
-        //TODO execute the call synchronously
+        // TODO execute the call synchronously
 
-        //TODO unwrap the body
+        // TODO unwrap the body
         List<Meal> meals = null;
 
         assertNotNull(meals);

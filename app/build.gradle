@@ -31,11 +31,9 @@ dependencies {
     /* Apache commons lang3 - used for StringBuilder, HashcodeBuilder, and so on */
     compile "org.apache.commons:commons-lang3:$commons_lang3_version"
 
-    /* Joda time for android for date handling */
-    compile "net.danlew:android.joda:${joda_time_version}"
-
-    compile("com.squareup.retrofit2:retrofit:${retrofit2_version}")
-    compile("com.squareup.retrofit2:converter-gson:${retrofit2_version}")
+    compile "com.squareup.okhttp3:logging-interceptor:${okhttp_version}"
+    compile "com.squareup.retrofit2:retrofit:${retrofit2_version}"
+    compile "com.squareup.retrofit2:converter-gson:${retrofit2_version}"
 
     /* JUnit 5 */
     testImplementation junit5()

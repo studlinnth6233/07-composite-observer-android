@@ -5,7 +5,6 @@ package de.fhro.inf.prg3.a07.api;
  */
 
 public interface OpenMensaAPI {
-
-    //TODO add method to get meals of a day
-    //GET /canteens/229/days/2017-11-22/meals
+    // TODO add method to get meals of a day
+    // example request: GET /canteens/229/days/2017-11-22/meals
 }
