@@ -68,7 +68,7 @@ Where the static variable `R.layout.activity_main` refers to the file `app/layou
 
 So how are the components layed out on the screen?
 If you look at the [Android docs](https://developer.android.com/index.html) for design recommondations you'll notice that the `ConstraintLayout` is currently the preferred way to layout Android apps.
-So in the example above, `main app view` is actually a _layout_ container, and in our case, we wil use `ConstraintLayout` (which should be the default).
+So in the example above, `main app view` is actually a _layout_ container, and in our case, we will use `ConstraintLayout` (which should be the default).
 
 
 ### Basic Layout
@@ -207,7 +207,7 @@ Change your code so that once you click the button, it retrieves today's menu, a
 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 String today = sdf.format(new Date());
 ```
-	
+
 - You will need to map the list of `Meal`s to a list of `String`s.
 - Android forbids running network code on the UI thread; use the `Call.enqueue()` instead of the `Call.execute()` method, and pass it a `Callback<>` handler.
 - In the network callback, make sure to check if the response was successful, by checking `response.isSuccesful()` (which returns true for `2XX` codes).
