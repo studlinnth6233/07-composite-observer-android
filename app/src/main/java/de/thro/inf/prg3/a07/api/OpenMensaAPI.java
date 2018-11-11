@@ -1,4 +1,4 @@
-package de.fhro.inf.prg3.a07.api;
+package de.thro.inf.prg3.a07.api;
 
 /**
  * Created by Peter Kurfer on 11/19/17.

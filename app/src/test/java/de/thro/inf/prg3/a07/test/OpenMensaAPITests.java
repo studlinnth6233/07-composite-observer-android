@@ -1,4 +1,4 @@
-package de.fhro.inf.prg3.a07.test;
+package de.thro.inf.prg3.a07.test;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 
-import de.fhro.inf.prg3.a07.api.OpenMensaAPI;
-import de.fhro.inf.prg3.a07.model.Meal;
+import de.thro.inf.prg3.a07.api.OpenMensaAPI;
+import de.thro.inf.prg3.a07.model.Meal;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;

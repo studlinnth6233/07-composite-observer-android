@@ -1,4 +1,4 @@
-package de.fhro.inf.prg3.a07;
+package de.thro.inf.prg3.a07;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
