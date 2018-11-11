@@ -4,13 +4,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Logger;
 
 import de.thro.inf.prg3.a07.api.OpenMensaAPI;
 import de.thro.inf.prg3.a07.model.Meal;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -21,45 +28,62 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * Created by Peter Kurfer on 11/19/17.
  */
 
-public class OpenMensaAPITests {
+class OpenMensaAPITests {
 
-    private static final Logger logger = Logger.getLogger(OpenMensaAPITests.class.getName());
-    private OpenMensaAPI openMensaAPI;
+	private static final Logger logger = Logger.getLogger(OpenMensaAPITests.class.getName());
+	private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+	private OpenMensaAPI openMensaAPI;
 
-    @BeforeEach
-    public void setup() {
-        // use this to intercept all requests and output them to the logging facilities
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+	private static Date getUpcomingMondayDate() {
+		Calendar cal = Calendar.getInstance();
+		while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
+			cal.add(Calendar.DAY_OF_MONTH, 1);
+		}
+		return cal.getTime();
+	}
 
-        OkHttpClient client = new OkHttpClient.Builder()
-                .addInterceptor(interceptor)
-                .build();
+	@BeforeEach
+	void setup() {
+		// use this to intercept all requests and output them to the logging facilities
+		HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+		interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl("http://openmensa.org/api/v2/")
-                .client(client)
-                .build();
+		/* create a OkHttpClient and register the interceptor */
+		OkHttpClient client = new OkHttpClient.Builder()
+			.addInterceptor(interceptor)
+			.build();
 
-        openMensaAPI = retrofit.create(OpenMensaAPI.class);
-    }
+		/* create a Retrofit instance
+		 * register the default GSON factory
+		 * register the created client with HTTP interceptor */
+		Retrofit retrofit = new Retrofit.Builder()
+			.addConverterFactory(GsonConverterFactory.create())
+			.baseUrl("https://openmensa.org/api/v2/")
+			.client(client)
+			.build();
 
-    @Test
-    public void testGetMeals() throws IOException {
-        // TODO prepare call
+		/* retrieve a proxy object for the OpenMensaAPI interface */
+		openMensaAPI = retrofit.create(OpenMensaAPI.class);
+	}
 
-        // TODO execute the call synchronously
+	@Test
+	void testGetMeals() throws IOException {
+		/* create a call to get all meals of the current day */
+		Call<List<Meal>> mealsCall = openMensaAPI.getMeals(dateFormat.format(getUpcomingMondayDate()));
 
-        // TODO unwrap the body
-        List<Meal> meals = null;
+		/* execute the call synchronous */
+		Response<List<Meal>> mealsResponse = mealsCall.execute();
 
-        assertNotNull(meals);
-        assertNotEquals(0, meals.size());
+		/* unwrap the response */
+		List<Meal> meals = mealsResponse.body();
 
-        for(Meal m : meals){
-            logger.info(m.toString());
-        }
-    }
+		assertNotNull(meals);
+		assertNotEquals(0, meals.size());
+
+		/* display the results in the log of the test */
+		for (Meal m : meals) {
+			logger.info(m.toString());
+		}
+	}
 
 }
