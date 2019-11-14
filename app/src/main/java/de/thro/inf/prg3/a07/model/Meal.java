@@ -65,6 +65,16 @@ public class Meal
 		return notes;
 	}
 
+	/**
+	 * Checks if the meal is vegetarian by taking a look at its notes
+	 * @return
+	 */
+	public boolean isVegetarian()
+	{
+		return notes.stream()
+			.noneMatch(note -> note.contains("fleisch"));
+	}
+
 	@Override
 	public boolean equals(Object o)
 	{
