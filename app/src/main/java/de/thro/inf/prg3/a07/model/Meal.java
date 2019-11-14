@@ -7,88 +7,106 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Created by Peter Kurfer on 11/19/17.
+ * Represents the instance of a meal
  */
+public class Meal
+{
+	private int id;
+	private String name;
+	private String category;
+	private List<String> notes;
 
-public class Meal {
-    private int id;
-    private String name;
-    private String category;
-    private List<String> notes;
+	/**
+	 * Constructor
+	 * Initialize notes
+	 */
+	public Meal()
+	{
+		notes = new LinkedList<>();
+	}
 
-    public Meal() {
-        notes = new LinkedList<>();
-    }
+	/**
+	 * GETTER : id
+	 *
+	 * @return ID of the meal
+	 */
+	public int getId()
+	{
+		return id;
+	}
 
-    public int getId() {
-        return id;
-    }
+	/**
+	 * GETTER : name
+	 *
+	 * @return Name of the meal
+	 */
+	public String getName()
+	{
+		return name;
+	}
 
-    public void setId(int id) {
-        this.id = id;
-    }
+	/**
+	 * GETTER : category
+	 *
+	 * @return Category of the meal
+	 */
+	public String getCategory()
+	{
+		return category;
+	}
 
-    public String getName() {
-        return name;
-    }
+	/**
+	 * GETTER : notes
+	 *
+	 * @return List containing all notes to meal (ingredients)
+	 */
+	public List<String> getNotes()
+	{
+		return notes;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o) return true;
 
-    public String getCategory() {
-        return category;
-    }
+		if (!(o instanceof Meal)) return false;
 
-    public void setCategory(String category) {
-        this.category = category;
-    }
+		Meal meal = (Meal) o;
 
-    public List<String> getNotes() {
-        return notes;
-    }
+		return new EqualsBuilder()
+			.append(getId(), meal.getId())
+			.append(getName(), meal.getName())
+			.append(getCategory(), meal.getCategory())
+			.append(getNotes(), meal.getNotes())
+			.isEquals();
+	}
 
-    public void setNotes(List<String> notes) {
-        this.notes = notes;
-    }
+	@Override
+	public int hashCode()
+	{
+		return new HashCodeBuilder(17, 37)
+			.append(getId())
+			.append(getName())
+			.append(getCategory())
+			.append(getNotes())
+			.toHashCode();
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
+	@Override
+	public String toString()
+	{
+		StringBuilder notesBuilder = new StringBuilder();
 
-        if (!(o instanceof Meal)) return false;
+		for (String s : notes)
+			notesBuilder.append(String.format("%s, ", s));
 
-        Meal meal = (Meal) o;
+		if (notesBuilder.length() > 0)
+			notesBuilder.setLength(notesBuilder.length() - 2);
 
-        return new EqualsBuilder()
-                .append(getId(), meal.getId())
-                .append(getName(), meal.getName())
-                .append(getCategory(), meal.getCategory())
-                .append(getNotes(), meal.getNotes())
-                .isEquals();
-    }
+		else
+			notesBuilder.append("No notes");
 
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(getId())
-                .append(getName())
-                .append(getCategory())
-                .append(getNotes())
-                .toHashCode();
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder notesBuilder = new StringBuilder();
-        for(String s : notes){
-            notesBuilder.append(String.format("%s, ", s));
-        }
-        if(notesBuilder.length() > 0) {
-            notesBuilder.setLength(notesBuilder.length() - 2);
-        }else {
-            notesBuilder.append("No notes");
-        }
-        return String.format("%s\n%s\n%s", name, category, notesBuilder.toString());
-    }
+		return String.format("%s\n%s\n%s", name, category, notesBuilder.toString());
+	}
 }

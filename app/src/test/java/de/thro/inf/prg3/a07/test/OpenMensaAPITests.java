@@ -17,49 +17,39 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-/**
- * Created by Peter Kurfer on 11/19/17.
- */
+public class OpenMensaAPITests
+{
+	private static final Logger logger = Logger.getLogger(OpenMensaAPITests.class.getName());
+	private OpenMensaAPI openMensaAPI;
 
-public class OpenMensaAPITests {
+	@BeforeEach
+	public void setup()
+	{
+		HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+		interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
-    private static final Logger logger = Logger.getLogger(OpenMensaAPITests.class.getName());
-    private OpenMensaAPI openMensaAPI;
+		OkHttpClient client = new OkHttpClient.Builder()
+			.addInterceptor(interceptor)
+			.build();
 
-    @BeforeEach
-    public void setup() {
-        // use this to intercept all requests and output them to the logging facilities
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+		Retrofit retrofit = new Retrofit.Builder()
+			.addConverterFactory(GsonConverterFactory.create())
+			.baseUrl("http://openmensa.org/api/v2/")
+			.client(client)
+			.build();
 
-        OkHttpClient client = new OkHttpClient.Builder()
-                .addInterceptor(interceptor)
-                .build();
+		openMensaAPI = retrofit.create(OpenMensaAPI.class);
+	}
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl("http://openmensa.org/api/v2/")
-                .client(client)
-                .build();
+	@Test
+	public void testGetMeals() throws IOException
+	{
+		List<Meal> meals = null;
 
-        openMensaAPI = retrofit.create(OpenMensaAPI.class);
-    }
+		assertNotNull(meals);
+		assertNotEquals(0, meals.size());
 
-    @Test
-    public void testGetMeals() throws IOException {
-        // TODO prepare call
-
-        // TODO execute the call synchronously
-
-        // TODO unwrap the body
-        List<Meal> meals = null;
-
-        assertNotNull(meals);
-        assertNotEquals(0, meals.size());
-
-        for(Meal m : meals){
-            logger.info(m.toString());
-        }
-    }
-
+		for (Meal m : meals)
+			logger.info(m.toString());
+	}
 }
